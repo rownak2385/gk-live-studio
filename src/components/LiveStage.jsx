@@ -10,7 +10,6 @@ import {
   ChevronLeft, 
   Eye, 
   Sparkles,
-  Info,
   Flame,
   Clock,
   BookOpen
@@ -38,9 +37,9 @@ export default function LiveStage({
     if (isAnswerRevealed) {
       try {
         confetti({
-          particleCount: 80,
-          spread: 90,
-          origin: { y: 0.6 },
+          particleCount: 75,
+          spread: 85,
+          origin: { y: 0.65 },
           colors: ['#00f5ff', '#10b981', '#fbbf24', '#f43f5e', '#a855f7', '#ffffff']
         });
       } catch {
@@ -69,78 +68,68 @@ export default function LiveStage({
   const optionStyles = [
     { 
       letter: 'ক', 
-      badge: 'bg-cyan-500/25 text-cyan-300 border-cyan-400/40 shadow-[0_0_15px_rgba(6,182,212,0.35)]',
-      borderHover: 'hover:border-cyan-400/60 hover:bg-cyan-500/[0.1]'
+      badge: 'bg-cyan-500/25 text-cyan-300 border-cyan-400/40 shadow-[0_0_12px_rgba(6,182,212,0.3)]',
+      borderHover: 'hover:border-cyan-400/50 hover:bg-cyan-500/[0.08]'
     },
     { 
       letter: 'খ', 
-      badge: 'bg-purple-500/25 text-purple-300 border-purple-400/40 shadow-[0_0_15px_rgba(168,85,247,0.35)]',
-      borderHover: 'hover:border-purple-400/60 hover:bg-purple-500/[0.1]'
+      badge: 'bg-purple-500/25 text-purple-300 border-purple-400/40 shadow-[0_0_12px_rgba(168,85,247,0.3)]',
+      borderHover: 'hover:border-purple-400/50 hover:bg-purple-500/[0.08]'
     },
     { 
       letter: 'গ', 
-      badge: 'bg-amber-500/25 text-amber-300 border-amber-400/40 shadow-[0_0_15px_rgba(245,158,11,0.35)]',
-      borderHover: 'hover:border-amber-400/60 hover:bg-amber-500/[0.1]'
+      badge: 'bg-amber-500/25 text-amber-300 border-amber-400/40 shadow-[0_0_12px_rgba(245,158,11,0.3)]',
+      borderHover: 'hover:border-amber-400/50 hover:bg-amber-500/[0.08]'
     },
     { 
       letter: 'ঘ', 
-      badge: 'bg-emerald-500/25 text-emerald-300 border-emerald-400/40 shadow-[0_0_15px_rgba(16,185,129,0.35)]',
-      borderHover: 'hover:border-emerald-400/60 hover:bg-emerald-500/[0.1]'
+      badge: 'bg-emerald-500/25 text-emerald-300 border-emerald-400/40 shadow-[0_0_12px_rgba(16,185,129,0.3)]',
+      borderHover: 'hover:border-emerald-400/50 hover:bg-emerald-500/[0.08]'
     }
   ];
 
   return (
     <div className={`w-full flex flex-col items-center justify-center relative mx-auto ${
       isDisplayOnly 
-        ? 'w-[96vw] max-w-[1780px] min-h-[92vh] py-3 md:py-6 px-2 sm:px-4' 
-        : 'max-w-6xl px-4 py-3 md:py-6'
+        ? 'w-[90%] md:w-[84%] max-w-[1260px] py-4 md:py-6 px-3' 
+        : 'max-w-5xl px-4 py-3 md:py-6'
     }`}>
       
       {/* Background Subtle Neon Ambient Bleed */}
-      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 rounded-full blur-[140px] pointer-events-none transition-colors duration-1000 ${
-        timeLeft <= 15 ? 'bg-rose-600/12' : timeLeft <= 30 ? 'bg-amber-500/12' : 'bg-cyan-500/12'
+      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 rounded-full blur-[120px] pointer-events-none transition-colors duration-1000 ${
+        timeLeft <= 15 ? 'bg-rose-600/10' : timeLeft <= 30 ? 'bg-amber-500/10' : 'bg-cyan-500/10'
       }`} />
 
       {/* ==========================================================
-          THE EXPANDED BROADCAST QUIZ CARD (MATCHES MARKED SCREENSHOT)
+          THE BROADCAST QUIZ CARD (PERFECT OBS 16:9 PROPORTION)
          ========================================================== */}
-      <div className={`w-full apple-dark-card relative overflow-hidden backdrop-blur-3xl transition-all duration-300 flex flex-col justify-between ${
-        isDisplayOnly 
-          ? 'rounded-[3rem] p-7 sm:p-10 md:p-12 lg:p-14 min-h-[85vh] shadow-[0_40px_100px_rgba(0,0,0,0.95)]' 
-          : 'rounded-[2.5rem] p-6 md:p-10'
-      }`}>
+      <div className="w-full apple-dark-card rounded-[2.25rem] p-6 md:p-8 lg:p-9 relative overflow-hidden backdrop-blur-3xl transition-all duration-300 shadow-[0_25px_70px_rgba(0,0,0,0.85)]">
         
-        {/* Top Specular Neon Light Accent Line */}
-        <div className={`absolute top-0 inset-x-0 h-1.5 transition-all duration-700 bg-gradient-to-r ${
+        {/* TOP SPECULAR NEON LIGHT ACCENT (FIXED: Never droops around rounded corners!) */}
+        <div className={`absolute top-0 left-16 right-16 md:left-28 md:right-28 h-[2px] rounded-full transition-all duration-700 bg-gradient-to-r ${
           timeLeft <= 15 
-            ? 'from-transparent via-rose-500/70 to-transparent shadow-[0_0_15px_#f43f5e]' 
+            ? 'from-transparent via-rose-500 to-transparent shadow-[0_0_12px_#f43f5e]' 
             : timeLeft <= 30 
-            ? 'from-transparent via-amber-400/70 to-transparent shadow-[0_0_15px_#fbbf24]' 
-            : 'from-transparent via-cyan-400/70 to-transparent shadow-[0_0_15px_#22d3ee]'
+            ? 'from-transparent via-amber-400 to-transparent shadow-[0_0_12px_#fbbf24]' 
+            : 'from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#22d3ee]'
         }`} />
 
-        {/* 1. Card Header: Big Question Counter & Category Badge */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6 md:mb-8">
-          <div className="flex items-center gap-3.5 sm:gap-4">
+        {/* 1. Header: Question Counter & Category Badge */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
             
             {/* Question Counter (Apple Royal Violet Neon) */}
-            <div className={`rounded-full flex items-center gap-2.5 bg-gradient-to-r from-violet-600/30 via-indigo-600/25 to-purple-600/20 border border-violet-400/40 shadow-[0_0_18px_rgba(139,92,246,0.35)] ${
-              isDisplayOnly ? 'px-5 py-2.5 md:px-6 md:py-3' : 'px-4 py-1.5'
-            }`}>
-              <span className="w-3 h-3 rounded-full bg-violet-400 shadow-[0_0_10px_#c084fc] animate-pulse" />
-              <span className={`font-tiro font-bold text-violet-200 tracking-wide ${
-                isDisplayOnly ? 'text-base sm:text-lg md:text-xl' : 'text-sm md:text-base'
-              }`}>
+            <div className="px-4 py-1.5 rounded-full flex items-center gap-2 bg-gradient-to-r from-violet-600/30 via-indigo-600/25 to-purple-600/20 border border-violet-400/40 shadow-[0_0_15px_rgba(139,92,246,0.3)]">
+              <span className="w-2.5 h-2.5 rounded-full bg-violet-400 shadow-[0_0_8px_#c084fc] animate-pulse" />
+              <span className="font-tiro text-sm md:text-base font-bold text-violet-200">
                 প্রশ্ন {banglaIndex} / {banglaTotal}
               </span>
             </div>
 
             {/* Category Tag (Golden Amber Prestige Neon) */}
             {question.category && (
-              <div className={`rounded-full flex items-center gap-2 bg-gradient-to-r from-amber-500/25 to-orange-500/20 border border-amber-400/40 text-amber-300 shadow-[0_0_16px_rgba(245,158,11,0.3)] font-tiro font-bold ${
-                isDisplayOnly ? 'px-5 py-2.5 md:px-6 md:py-3 text-base sm:text-lg md:text-xl' : 'px-4 py-1.5 text-xs md:text-sm'
-              }`}>
-                <Flame className={`${isDisplayOnly ? 'w-5 h-5' : 'w-3.5 h-3.5'} text-amber-400 animate-pulse`} />
+              <div className="px-4 py-1.5 rounded-full flex items-center gap-1.5 bg-gradient-to-r from-amber-500/25 to-orange-500/20 border border-amber-400/40 text-amber-300 shadow-[0_0_14px_rgba(245,158,11,0.25)] font-tiro text-xs md:text-sm font-semibold">
+                <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
                 <span>{question.category}</span>
               </div>
             )}
@@ -149,46 +138,34 @@ export default function LiveStage({
           {/* Time Running Status Pill */}
           <div className="flex items-center gap-2">
             {isRunning ? (
-              <span className={`font-tiro font-bold text-emerald-300 flex items-center gap-2 ${
-                isDisplayOnly ? 'text-base sm:text-lg md:text-xl' : 'text-xs md:text-sm'
-              }`}>
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+              <span className="font-tiro text-xs md:text-sm font-semibold text-emerald-300 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 সময় গণনা চলছে...
               </span>
             ) : timeLeft === 0 ? (
-              <span className={`font-tiro font-bold text-rose-400 flex items-center gap-2 ${
-                isDisplayOnly ? 'text-base sm:text-lg md:text-xl' : 'text-xs md:text-sm'
-              }`}>
+              <span className="font-tiro text-xs md:text-sm font-semibold text-rose-400 flex items-center gap-1.5">
                 সময় সমাপ্ত
               </span>
             ) : timeLeft === totalTime ? (
-              <span className={`font-tiro font-bold text-amber-300 flex items-center gap-2 ${
-                isDisplayOnly ? 'text-base sm:text-lg md:text-xl' : 'text-xs md:text-sm'
-              }`}>
-                <Play className={`${isDisplayOnly ? 'w-4 h-4' : 'w-3.5 h-3.5'} fill-amber-400 text-amber-400`} />
+              <span className="font-tiro text-xs md:text-sm font-semibold text-amber-300 flex items-center gap-1.5">
+                <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                 টাইমার প্রস্তুত (ক্লিক করে শুরু করুন)
               </span>
             ) : (
-              <span className={`font-tiro font-semibold text-zinc-400 flex items-center gap-2 ${
-                isDisplayOnly ? 'text-base sm:text-lg' : 'text-xs md:text-sm'
-              }`}>
-                <Pause className={`${isDisplayOnly ? 'w-4 h-4' : 'w-3.5 h-3.5'} text-zinc-400`} />
+              <span className="font-tiro text-xs md:text-sm font-semibold text-zinc-400 flex items-center gap-1.5">
+                <Pause className="w-3.5 h-3.5 text-zinc-400" />
                 টাইমার বিরতি
               </span>
             )}
           </div>
         </div>
 
-        {/* 2. Central Section: Large Readable Question & Huge Neon Circular Timer */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto py-2 md:py-4">
+        {/* 2. Central Section: Clear Readable Question & Neon Circular Timer */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-center mb-6">
           
-          {/* Question Text Body - Made large, bold and readable as requested! */}
+          {/* Question Text Body */}
           <div className="lg:col-span-9 flex flex-col justify-center">
-            <h1 className={`font-tiro font-bold text-white drop-shadow-lg text-left tracking-normal ${
-              isDisplayOnly 
-                ? 'text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.35] md:leading-[1.38]' 
-                : 'text-2xl sm:text-3xl md:text-4xl leading-relaxed'
-            }`}>
+            <h1 className="font-tiro font-bold text-white leading-relaxed md:leading-normal drop-shadow-md text-left text-2xl sm:text-3xl md:text-[32px] lg:text-[36px]">
               {question.question}
             </h1>
           </div>
@@ -199,16 +176,13 @@ export default function LiveStage({
               timeLeft={timeLeft} 
               totalTime={totalTime} 
               isRunning={isRunning} 
-              isLarge={isDisplayOnly}
             />
           </div>
         </div>
 
-        {/* 3. Multiple Choice Options Grid (Large Readable Glass Cards) */}
+        {/* 3. Multiple Choice Options Grid (Balanced & Readable) */}
         {question.options && question.options.length > 0 && (
-          <div className={`grid grid-cols-1 sm:grid-cols-2 my-auto ${
-            isDisplayOnly ? 'gap-4 md:gap-6 my-4 md:my-6' : 'gap-3.5 mb-7'
-          }`}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
             {question.options.map((option, idx) => {
               const optStyle = optionStyles[idx % optionStyles.length];
               const isThisCorrect = isAnswerRevealed && option.trim().toLowerCase() === question.answer.trim().toLowerCase();
@@ -216,33 +190,25 @@ export default function LiveStage({
               return (
                 <div
                   key={idx}
-                  className={`flex items-center border transition-all duration-300 ${
-                    isDisplayOnly 
-                      ? 'p-5 sm:p-6 md:p-7 rounded-3xl text-lg sm:text-xl md:text-2xl gap-4 md:gap-5' 
-                      : 'p-4 rounded-2xl text-base md:text-lg gap-3.5'
-                  } font-tiro ${
+                  className={`flex items-center gap-3.5 p-4 rounded-2xl font-tiro text-base md:text-lg border transition-all duration-300 ${
                     isThisCorrect
-                      ? 'bg-emerald-500/25 border-emerald-400/90 shadow-[0_0_35px_rgba(16,185,129,0.5)] scale-[1.02] text-white font-extrabold'
-                      : `apple-glass-option ${optStyle.borderHover} text-zinc-100 font-semibold`
+                      ? 'bg-emerald-500/25 border-emerald-400/80 shadow-[0_0_30px_rgba(16,185,129,0.45)] scale-[1.02] text-white font-bold'
+                      : `apple-glass-option ${optStyle.borderHover} text-zinc-100 font-medium`
                   }`}
                 >
                   {/* Jewel Letter Badge (ক, খ, গ, ঘ) */}
-                  <span className={`flex items-center justify-center font-extrabold border flex-shrink-0 ${
-                    isDisplayOnly 
-                      ? 'w-11 h-11 md:w-14 md:h-14 rounded-2xl text-lg md:text-2xl' 
-                      : 'w-8 h-8 rounded-xl text-sm'
-                  } ${
+                  <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border flex-shrink-0 ${
                     isThisCorrect 
-                      ? 'bg-emerald-400 text-black border-emerald-300 shadow-[0_0_18px_#34d399]' 
+                      ? 'bg-emerald-400 text-black border-emerald-300 shadow-[0_0_15px_#34d399]' 
                       : optStyle.badge
                   }`}>
                     {optStyle.letter || toBengaliNumber(idx + 1)}
                   </span>
                   
-                  <span className="flex-1 text-left leading-relaxed">{option}</span>
+                  <span className="flex-1 text-left">{option}</span>
                   
                   {isThisCorrect && (
-                    <CheckCircle2 className={`${isDisplayOnly ? 'w-7 h-7' : 'w-5 h-5'} text-emerald-400 animate-bounce flex-shrink-0`} />
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 animate-bounce flex-shrink-0" />
                   )}
                 </div>
               );
@@ -251,33 +217,25 @@ export default function LiveStage({
         )}
 
         {/* 4. Bottom Area: Reserved for Answer & Explanation */}
-        <div className={`flex items-center justify-center ${isDisplayOnly ? 'mt-4 md:mt-6 min-h-[120px]' : 'min-h-[100px]'}`}>
+        <div className="min-h-[96px] flex items-center justify-center">
           {isAnswerRevealed ? (
             /* Radiant Answer & Fact Reveal Card (Emerald & Gold Neon) */
-            <div className={`w-full rounded-3xl animate-flip-in text-center relative overflow-hidden bg-gradient-to-br from-emerald-950/70 via-slate-900/90 to-emerald-950/60 border-2 border-emerald-400/60 shadow-[0_0_55px_rgba(16,185,129,0.38)] ${
-              isDisplayOnly ? 'p-7 md:p-9' : 'p-6 md:p-7'
-            }`}>
-              <div className="absolute top-0 right-0 -mr-6 -mt-6 w-36 h-36 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="w-full rounded-2xl p-5 md:p-6 animate-flip-in text-center relative overflow-hidden bg-gradient-to-br from-emerald-950/70 via-slate-900/90 to-emerald-950/60 border-2 border-emerald-400/60 shadow-[0_0_45px_rgba(16,185,129,0.35)]">
+              <div className="absolute top-0 right-0 -mr-6 -mt-6 w-28 h-28 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none" />
               
-              <div className={`inline-flex items-center gap-2 rounded-full bg-emerald-500/25 text-emerald-300 font-tiro font-bold mb-3 border border-emerald-400/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] ${
-                isDisplayOnly ? 'px-5 py-1.5 text-sm md:text-base' : 'px-3.5 py-1 text-xs md:text-sm'
-              }`}>
-                <Sparkles className={`${isDisplayOnly ? 'w-5 h-5' : 'w-4 h-4'} text-emerald-300 animate-spin`} style={{ animationDuration: '4s' }} />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/25 text-emerald-300 text-xs md:text-sm font-tiro font-bold mb-2 border border-emerald-400/50 shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-300 animate-spin" style={{ animationDuration: '4s' }} />
                 সঠিক উত্তর
               </div>
 
-              <div className={`font-tiro font-black text-emerald-300 drop-shadow-[0_0_25px_rgba(52,211,153,0.75)] mb-3 ${
-                isDisplayOnly ? 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl' : 'text-2xl md:text-4xl'
-              }`}>
+              <div className="font-tiro text-2xl md:text-4xl font-extrabold text-emerald-300 drop-shadow-[0_0_20px_rgba(52,211,153,0.7)] mb-2">
                 {question.answer}
               </div>
 
               {/* অতিরিক্ত ব্যাখ্যা বা তথ্য */}
               {question.explanation && (
-                <div className={`border-t border-emerald-500/30 text-emerald-100 font-tiro flex items-center justify-center gap-3 max-w-4xl mx-auto bg-black/30 rounded-2xl ${
-                  isDisplayOnly ? 'mt-4 p-4 md:p-5 text-base sm:text-lg md:text-xl' : 'mt-3.5 pt-3 p-3 text-sm md:text-base'
-                }`}>
-                  <BookOpen className={`${isDisplayOnly ? 'w-6 h-6' : 'w-5 h-5'} text-amber-300 flex-shrink-0`} />
+                <div className="mt-3 pt-3 border-t border-emerald-500/25 text-emerald-100 font-tiro text-sm md:text-base flex items-center justify-center gap-2 max-w-3xl mx-auto bg-black/20 p-3 rounded-xl">
+                  <BookOpen className="w-4 h-4 text-amber-300 flex-shrink-0" />
                   <span className="text-left leading-relaxed">
                     <strong className="text-amber-300 font-bold">অতিরিক্ত তথ্য: </strong>
                     {question.explanation}
@@ -287,32 +245,22 @@ export default function LiveStage({
             </div>
           ) : (
             /* Inside Card Placeholder reserved for facts & explanation */
-            <div className={`w-full bg-white/[0.03] border border-white/10 flex items-center justify-between text-zinc-300 font-tiro ${
-              isDisplayOnly ? 'p-5 md:p-6 rounded-3xl' : 'p-4 rounded-2xl'
-            }`}>
-              <div className="flex items-center gap-3.5">
-                <div className={`rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center flex-shrink-0 ${
-                  isDisplayOnly ? 'w-10 h-10 md:w-12 md:h-12' : 'w-8 h-8'
-                }`}>
-                  <BookOpen className={isDisplayOnly ? 'w-5 h-5 md:w-6 md:h-6' : 'w-4 h-4'} />
+            <div className="w-full p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between text-zinc-300 font-tiro">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center flex-shrink-0">
+                  <BookOpen className="w-4 h-4" />
                 </div>
                 <div className="text-left">
-                  <span className={`font-bold text-white block ${
-                    isDisplayOnly ? 'text-base sm:text-lg md:text-xl' : 'text-sm md:text-base'
-                  }`}>
+                  <span className="text-sm md:text-base font-semibold text-white">
                     {question.explanation ? 'অতিরিক্ত তথ্য ও ব্যাখ্যা সংযুক্ত আছে' : 'সাধারণ জ্ঞান কুইজ'}
                   </span>
-                  <p className={`text-zinc-400 ${
-                    isDisplayOnly ? 'text-xs sm:text-sm md:text-base mt-0.5' : 'text-xs'
-                  }`}>
+                  <p className="text-xs text-zinc-400">
                     সময় শেষ হলে সঠিক উত্তরের সাথে বিস্তারিত তথ্য স্ক্রিনে প্রদর্শিত হবে
                   </p>
                 </div>
               </div>
 
-              <span className={`font-tiro font-semibold rounded-full bg-white/5 border border-white/10 text-zinc-400 hidden sm:inline-block ${
-                isDisplayOnly ? 'px-4 py-2 text-sm md:text-base' : 'px-3 py-1 text-xs'
-              }`}>
+              <span className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-400 hidden sm:inline-block">
                 ১ মিনিট সময়
               </span>
             </div>
@@ -323,10 +271,10 @@ export default function LiveStage({
 
       {/* ==========================================================
           PRESENTER CONTROLS & ANTICIPATION BAR 
-          (Only visible in Controller view, never in OBS capture)
+          (Only in Controller view, completely hidden in OBS capture)
          ========================================================== */}
       {!isDisplayOnly && (
-        <div className="w-full max-w-4xl mt-5 space-y-3">
+        <div className="w-full max-w-3xl mt-5 space-y-3">
           
           {/* Anticipation Bar: "সময় শেষ হলে উত্তর স্বয়ংক্রিয়ভাবে প্রদর্শিত হবে" */}
           <div className="w-full rounded-2xl bg-white/[0.04] border border-white/15 p-3.5 md:p-4 relative overflow-hidden backdrop-blur-xl">

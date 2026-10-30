@@ -1,8 +1,8 @@
 import React from 'react';
 import { toBengaliNumber } from '../utils/bengali';
 
-export default function CircularTimer({ timeLeft, totalTime = 60, isRunning, isLarge = false }) {
-  const radius = isLarge ? 68 : 58;
+export default function CircularTimer({ timeLeft, totalTime = 60, isRunning }) {
+  const radius = 52;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (timeLeft / totalTime) * circumference;
 
@@ -17,31 +17,27 @@ export default function CircularTimer({ timeLeft, totalTime = 60, isRunning, isL
       <div 
         className={`absolute inset-0 rounded-full transition-all duration-700 pointer-events-none ${
           isPhaseRed
-            ? 'bg-rose-600/35 blur-3xl scale-125 animate-pulse'
+            ? 'bg-rose-600/30 blur-2xl scale-115 animate-pulse'
             : isPhaseAmber
-            ? 'bg-amber-500/30 blur-2xl scale-115'
-            : 'bg-cyan-500/25 blur-2xl scale-110'
+            ? 'bg-amber-500/25 blur-xl scale-110'
+            : 'bg-cyan-500/20 blur-xl scale-105'
         }`}
       />
 
       <svg 
-        className={`transform -rotate-90 relative z-10 transition-all duration-500 ${
-          isLarge 
-            ? 'w-40 h-40 md:w-48 md:h-48 lg:w-56 lg:h-56' 
-            : 'w-32 h-32 md:w-40 md:h-40'
-        } ${
+        className={`w-32 h-32 md:w-36 md:h-36 transform -rotate-90 relative z-10 transition-all duration-500 ${
           isPhaseRed
             ? 'neon-glow-red'
             : isPhaseAmber
             ? 'neon-glow-amber'
             : 'neon-glow-cyan'
         }`}
-        viewBox="0 0 160 160"
+        viewBox="0 0 140 140"
       >
-        {/* Background Track with subtle tint */}
+        {/* Background Track */}
         <circle
-          cx="80"
-          cy="80"
+          cx="70"
+          cy="70"
           r={radius}
           stroke={
             isPhaseRed
@@ -50,17 +46,17 @@ export default function CircularTimer({ timeLeft, totalTime = 60, isRunning, isL
               ? 'rgba(245, 158, 11, 0.15)'
               : 'rgba(6, 182, 212, 0.15)'
           }
-          strokeWidth={isLarge ? "10" : "8"}
+          strokeWidth="7"
           fill="transparent"
         />
 
         {/* Dynamic Neon Animated Progress Ring */}
         <circle
-          cx="80"
-          cy="80"
+          cx="70"
+          cy="70"
           r={radius}
           stroke="url(#dynamicNeonGradient)"
-          strokeWidth={isLarge ? "11" : "9"}
+          strokeWidth="8"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
@@ -94,27 +90,21 @@ export default function CircularTimer({ timeLeft, totalTime = 60, isRunning, isL
         </defs>
       </svg>
 
-      {/* Central Display with Matching Neon Glow */}
+      {/* Central Display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-20 select-none">
         <span 
-          className={`font-tiro font-extrabold tracking-tight transition-all duration-500 leading-none ${
-            isLarge
-              ? 'text-4xl md:text-5xl lg:text-6xl mb-1'
-              : 'text-3xl md:text-4xl'
-          } ${
+          className={`font-tiro font-extrabold tracking-tight transition-all duration-500 leading-none text-3xl md:text-4xl mb-0.5 ${
             isPhaseRed 
-              ? 'text-rose-400 drop-shadow-[0_0_16px_rgba(244,63,94,0.95)]' 
+              ? 'text-rose-400 drop-shadow-[0_0_14px_rgba(244,63,94,0.95)]' 
               : isPhaseAmber 
-              ? 'text-amber-300 drop-shadow-[0_0_16px_rgba(251,191,36,0.9)]' 
-              : 'text-cyan-300 drop-shadow-[0_0_16px_rgba(6,182,212,0.9)]'
+              ? 'text-amber-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.9)]' 
+              : 'text-cyan-300 drop-shadow-[0_0_14px_rgba(6,182,212,0.9)]'
           }`}
         >
           {toBengaliNumber(timeLeft)}
         </span>
         <span 
-          className={`font-tiro font-bold tracking-wider transition-colors duration-500 ${
-            isLarge ? 'text-xs md:text-sm' : 'text-[11px] md:text-xs'
-          } ${
+          className={`font-tiro font-bold text-xs tracking-wider transition-colors duration-500 ${
             isPhaseRed 
               ? 'text-rose-300/80' 
               : isPhaseAmber 
