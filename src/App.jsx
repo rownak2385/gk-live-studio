@@ -6,6 +6,7 @@ import KeyboardShortcutsModal from './components/KeyboardShortcutsModal';
 import { defaultQuestions } from './data/defaultQuestions';
 import { soundEffects } from './utils/audio';
 import { toBengaliNumber } from './utils/bengali';
+import { publishCloudState, subscribeCloudState } from './utils/cloudSync';
 
 export default function App() {
   // Check if current URL is loaded as pure Display window (?view=display)
@@ -28,9 +29,6 @@ export default function App() {
   // Timer Configuration (Default 60 seconds)
   const [timerDuration, setTimerDuration] = useState(60);
   const [timeLeft, setTimeLeft] = useState(60);
-  
-  // NOTE: isRunning is FALSE by default so timer NEVER auto-starts!
-  // It only starts when user explicitly clicks Play or presses Spacebar.
   const [isRunning, setIsRunning] = useState(false);
 
   // Answer State
@@ -38,16 +36,45 @@ export default function App() {
 
   // UI Modes
   const [isDisplayOnly, setIsDisplayOnly] = useState(isDisplayRoute);
-  const [isMuted, setIsMuted] = useState(isDisplayRoute); // Mute display window by default to avoid duplicate echo
+  const [isMuted, setIsMuted] = useState(isDisplayRoute); // Mute display window by default
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Modals
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
-  // BroadcastChannel for instant cross-window sync
+  // BroadcastChannel reference for same-browser sync
   const broadcastChannelRef = useRef(null);
 
+  // 1. CLOUD SYNC FOR OBS STUDIO (CEF) & CROSS-DEVICE STREAMING
+  useEffect(() => {
+    // If this is the display window (like in OBS Browser Source), subscribe to cloud events
+    if (isDisplayRoute || isDisplayOnly) {
+      const unsubscribe = subscribeCloudState((payload) => {
+        if (payload.questions && Array.isArray(payload.questions)) {
+          setQuestions(payload.questions);
+        }
+        if (typeof payload.currentIndex === 'number') {
+          setCurrentIndex(payload.currentIndex);
+        }
+        if (typeof payload.timeLeft === 'number') {
+          setTimeLeft(payload.timeLeft);
+        }
+        if (typeof payload.isRunning === 'boolean') {
+          setIsRunning(payload.isRunning);
+        }
+        if (typeof payload.isAnswerRevealed === 'boolean') {
+          setIsAnswerRevealed(payload.isAnswerRevealed);
+        }
+        if (typeof payload.timerDuration === 'number') {
+          setTimerDuration(payload.timerDuration);
+        }
+      });
+      return () => unsubscribe();
+    }
+  }, [isDisplayRoute, isDisplayOnly]);
+
+  // 2. SAME-BROWSER BROADCAST CHANNEL SYNC
   useEffect(() => {
     try {
       const channel = new BroadcastChannel('gk_live_sync_channel');
@@ -63,7 +90,6 @@ export default function App() {
           if (typeof payload.isAnswerRevealed === 'boolean') setIsAnswerRevealed(payload.isAnswerRevealed);
           if (typeof payload.timerDuration === 'number') setTimerDuration(payload.timerDuration);
         } else if (type === 'REQUEST_SYNC' && !isDisplayRoute) {
-          // Send current state to newly opened display window
           channel.postMessage({
             type: 'STATE_UPDATE',
             payload: {
@@ -78,7 +104,6 @@ export default function App() {
         }
       };
 
-      // If this is the display window, ask the controller for initial state
       if (isDisplayRoute) {
         channel.postMessage({ type: 'REQUEST_SYNC' });
       }
@@ -91,22 +116,41 @@ export default function App() {
     }
   }, [isDisplayRoute, questions, currentIndex, timeLeft, isRunning, isAnswerRevealed, timerDuration]);
 
-  // Helper to broadcast state changes from Controller window
-  const broadcastState = useCallback((patch) => {
+  // Helper to broadcast state changes to BOTH local tabs AND cloud for OBS
+  const broadcastState = useCallback((patch, isImmediate = false) => {
     if (isDisplayRoute) return;
+
+    // 1. Local BroadcastChannel
     if (broadcastChannelRef.current) {
       broadcastChannelRef.current.postMessage({
         type: 'STATE_UPDATE',
         payload: patch
       });
     }
+
+    // 2. Cloud PubSub for OBS Studio (CEF)
+    publishCloudState(patch, isImmediate);
   }, [isDisplayRoute]);
+
+  // Publish full initial state on controller load so OBS instantly syncs
+  useEffect(() => {
+    if (!isDisplayRoute) {
+      publishCloudState({
+        questions,
+        currentIndex,
+        timeLeft,
+        isRunning,
+        isAnswerRevealed,
+        timerDuration
+      }, true);
+    }
+  }, []); // Run once on mount
 
   // Save questions to localStorage
   useEffect(() => {
     try {
       localStorage.setItem('gk_live_questions', JSON.stringify(questions));
-      broadcastState({ questions });
+      broadcastState({ questions }, true);
     } catch {
       // Ignore
     }
@@ -131,7 +175,7 @@ export default function App() {
     }
   };
 
-  // Timer Countdown Logic (Only runs when isRunning === true)
+  // Timer Countdown Logic
   useEffect(() => {
     let interval = null;
 
@@ -139,21 +183,21 @@ export default function App() {
       interval = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            broadcastState({ timeLeft: 0, isRunning: false, isAnswerRevealed: true });
+            broadcastState({ timeLeft: 0, isRunning: false, isAnswerRevealed: true }, true);
             return 0;
           }
           if (!isMuted) {
             soundEffects.playTick(prev <= 10);
           }
           const nextVal = prev - 1;
-          broadcastState({ timeLeft: nextVal });
+          broadcastState({ timeLeft: nextVal }, false);
           return nextVal;
         });
       }, 1000);
     } else if (timeLeft === 0 && isRunning) {
       setIsRunning(false);
       setIsAnswerRevealed(true);
-      broadcastState({ isRunning: false, isAnswerRevealed: true });
+      broadcastState({ isRunning: false, isAnswerRevealed: true }, true);
       if (!isMuted) {
         soundEffects.playReveal();
       }
@@ -168,7 +212,7 @@ export default function App() {
   const handleTogglePlay = useCallback(() => {
     setIsRunning((prev) => {
       const next = !prev;
-      broadcastState({ isRunning: next });
+      broadcastState({ isRunning: next }, true);
       return next;
     });
   }, [broadcastState]);
@@ -176,15 +220,15 @@ export default function App() {
   const handleResetTimer = useCallback((newDuration) => {
     const dur = typeof newDuration === 'number' ? newDuration : timerDuration;
     setTimeLeft(dur);
-    setIsRunning(false); // Do NOT auto-start on reset!
+    setIsRunning(false);
     setIsAnswerRevealed(false);
-    broadcastState({ timeLeft: dur, isRunning: false, isAnswerRevealed: false });
+    broadcastState({ timeLeft: dur, isRunning: false, isAnswerRevealed: false }, true);
   }, [timerDuration, broadcastState]);
 
   const handleRevealAnswer = useCallback(() => {
     setIsAnswerRevealed((prev) => {
       const nextState = !prev;
-      broadcastState({ isAnswerRevealed: nextState });
+      broadcastState({ isAnswerRevealed: nextState }, true);
       if (nextState && !isMuted) {
         soundEffects.playReveal();
       }
@@ -197,14 +241,14 @@ export default function App() {
       const nextIdx = currentIndex + 1;
       setCurrentIndex(nextIdx);
       setTimeLeft(timerDuration);
-      setIsRunning(false); // Do NOT auto-start on next question!
+      setIsRunning(false);
       setIsAnswerRevealed(false);
       broadcastState({
         currentIndex: nextIdx,
         timeLeft: timerDuration,
         isRunning: false,
         isAnswerRevealed: false
-      });
+      }, true);
       if (!isMuted) soundEffects.playSlide();
     }
   }, [currentIndex, questions.length, timerDuration, isMuted, broadcastState]);
@@ -214,19 +258,19 @@ export default function App() {
       const prevIdx = currentIndex - 1;
       setCurrentIndex(prevIdx);
       setTimeLeft(timerDuration);
-      setIsRunning(false); // Do NOT auto-start on prev question!
+      setIsRunning(false);
       setIsAnswerRevealed(false);
       broadcastState({
         currentIndex: prevIdx,
         timeLeft: timerDuration,
         isRunning: false,
         isAnswerRevealed: false
-      });
+      }, true);
       if (!isMuted) soundEffects.playSlide();
     }
   }, [currentIndex, timerDuration, isMuted, broadcastState]);
 
-  // Keyboard Shortcuts (Works in both Controller and Display windows)
+  // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
       const tag = e.target.tagName.toLowerCase();
@@ -281,12 +325,12 @@ export default function App() {
   // ==========================================================
   if (isDisplayRoute || isDisplayOnly) {
     return (
-      <div className="min-h-screen w-full bg-black text-white flex flex-col items-center justify-center relative overflow-hidden font-tiro p-4 select-none">
+      <div className="min-h-screen w-full bg-black text-white flex flex-col items-center justify-center relative overflow-hidden font-tiro p-2 select-none">
         
         {/* Subtle Ambient Apple Specular Reflection */}
         <div className="absolute inset-0 apple-dark-bg pointer-events-none" />
 
-        {/* Minimal return to controller button (Only shows if in-page toggle, hidden if in popout) */}
+        {/* Minimal return button (hidden in OBS) */}
         {!isDisplayRoute && (
           <button
             onClick={() => setIsDisplayOnly(false)}
@@ -358,11 +402,11 @@ export default function App() {
         />
       </main>
 
-      {/* Footer Info */}
+      {/* Footer Info with Real-time Cloud Sync Indicator */}
       <footer className="w-full max-w-5xl mx-auto px-4 py-3 mb-2 flex items-center justify-between text-xs text-zinc-400 border-t border-white/10">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-white" />
-          <span>কন্ট্রোলার প্রস্তুত • টাইমার নিয়ন্ত্রণ করুন</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-zinc-300 font-semibold">OBS রিয়েল-টাইম সিঙ্ক সক্রিয়</span>
           <span>•</span>
           <span>মোট {toBengaliNumber(questions.length)} টি প্রশ্ন</span>
         </div>
@@ -386,20 +430,20 @@ export default function App() {
         questions={questions}
         setQuestions={(qs) => {
           setQuestions(qs);
-          broadcastState({ questions: qs });
+          broadcastState({ questions: qs }, true);
         }}
         currentIndex={currentIndex}
         setCurrentIndex={(idx) => {
           setCurrentIndex(idx);
           setTimeLeft(timerDuration);
-          setIsRunning(false); // Do NOT auto start when jumping to question
+          setIsRunning(false);
           setIsAnswerRevealed(false);
           broadcastState({
             currentIndex: idx,
             timeLeft: timerDuration,
             isRunning: false,
             isAnswerRevealed: false
-          });
+          }, true);
         }}
       />
 
