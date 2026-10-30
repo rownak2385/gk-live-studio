@@ -25,10 +25,13 @@ export default function App() {
   // Current Question Index
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Timer Configuration
+  // Timer Configuration (Default 60 seconds)
   const [timerDuration, setTimerDuration] = useState(60);
   const [timeLeft, setTimeLeft] = useState(60);
-  const [isRunning, setIsRunning] = useState(true);
+  
+  // NOTE: isRunning is FALSE by default so timer NEVER auto-starts!
+  // It only starts when user explicitly clicks Play or presses Spacebar.
+  const [isRunning, setIsRunning] = useState(false);
 
   // Answer State
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
@@ -84,7 +87,7 @@ export default function App() {
         channel.close();
       };
     } catch {
-      // BroadcastChannel not available, will fallback to localStorage
+      // Fallback
     }
   }, [isDisplayRoute, questions, currentIndex, timeLeft, isRunning, isAnswerRevealed, timerDuration]);
 
@@ -128,7 +131,7 @@ export default function App() {
     }
   };
 
-  // Timer Countdown Logic (Only runs in controller window or standalone)
+  // Timer Countdown Logic (Only runs when isRunning === true)
   useEffect(() => {
     let interval = null;
 
@@ -173,9 +176,9 @@ export default function App() {
   const handleResetTimer = useCallback((newDuration) => {
     const dur = typeof newDuration === 'number' ? newDuration : timerDuration;
     setTimeLeft(dur);
-    setIsRunning(true);
+    setIsRunning(false); // Do NOT auto-start on reset!
     setIsAnswerRevealed(false);
-    broadcastState({ timeLeft: dur, isRunning: true, isAnswerRevealed: false });
+    broadcastState({ timeLeft: dur, isRunning: false, isAnswerRevealed: false });
   }, [timerDuration, broadcastState]);
 
   const handleRevealAnswer = useCallback(() => {
@@ -194,12 +197,12 @@ export default function App() {
       const nextIdx = currentIndex + 1;
       setCurrentIndex(nextIdx);
       setTimeLeft(timerDuration);
-      setIsRunning(true);
+      setIsRunning(false); // Do NOT auto-start on next question!
       setIsAnswerRevealed(false);
       broadcastState({
         currentIndex: nextIdx,
         timeLeft: timerDuration,
-        isRunning: true,
+        isRunning: false,
         isAnswerRevealed: false
       });
       if (!isMuted) soundEffects.playSlide();
@@ -211,37 +214,17 @@ export default function App() {
       const prevIdx = currentIndex - 1;
       setCurrentIndex(prevIdx);
       setTimeLeft(timerDuration);
-      setIsRunning(true);
+      setIsRunning(false); // Do NOT auto-start on prev question!
       setIsAnswerRevealed(false);
       broadcastState({
         currentIndex: prevIdx,
         timeLeft: timerDuration,
-        isRunning: true,
+        isRunning: false,
         isAnswerRevealed: false
       });
       if (!isMuted) soundEffects.playSlide();
     }
   }, [currentIndex, timerDuration, isMuted, broadcastState]);
-
-  // Open Standalone Pop-out Window (For OBS Display/Window Capture)
-  const openPopoutDisplay = () => {
-    const width = 1920;
-    const height = 1080;
-    const left = window.screen.width ? (window.screen.width - width) / 2 : 0;
-    const top = window.screen.height ? (window.screen.height - height) / 2 : 0;
-
-    const popout = window.open(
-      `${window.location.origin}/?view=display`,
-      'GK_Live_Display_Output',
-      `width=${width},height=${height},top=${top},left=${left},menubar=no,toolbar=no,location=no,status=no`
-    );
-
-    if (popout) {
-      popout.focus();
-    } else {
-      alert("উইন্ডো পপ-আপ ব্লক করা আছে। দয়া করে ব্রাউজার থেকে Pop-up Allow করুন।");
-    }
-  };
 
   // Keyboard Shortcuts (Works in both Controller and Display windows)
   useEffect(() => {
@@ -354,7 +337,6 @@ export default function App() {
         timerDuration={timerDuration}
         setTimerDuration={setTimerDuration}
         onResetTimer={handleResetTimer}
-        openPopoutDisplay={openPopoutDisplay}
       />
 
       {/* Main Content Area */}
@@ -380,7 +362,7 @@ export default function App() {
       <footer className="w-full max-w-5xl mx-auto px-4 py-3 mb-2 flex items-center justify-between text-xs text-zinc-400 border-t border-white/10">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-white" />
-          <span>কন্ট্রোলার সংযুক্ত</span>
+          <span>কন্ট্রোলার প্রস্তুত • টাইমার নিয়ন্ত্রণ করুন</span>
           <span>•</span>
           <span>মোট {toBengaliNumber(questions.length)} টি প্রশ্ন</span>
         </div>
@@ -410,12 +392,12 @@ export default function App() {
         setCurrentIndex={(idx) => {
           setCurrentIndex(idx);
           setTimeLeft(timerDuration);
-          setIsRunning(true);
+          setIsRunning(false); // Do NOT auto start when jumping to question
           setIsAnswerRevealed(false);
           broadcastState({
             currentIndex: idx,
             timeLeft: timerDuration,
-            isRunning: true,
+            isRunning: false,
             isAnswerRevealed: false
           });
         }}

@@ -26,8 +26,7 @@ export default function Navbar({
   openShortcutsModal,
   timerDuration,
   setTimerDuration,
-  onResetTimer,
-  openPopoutDisplay
+  onResetTimer
 }) {
   const durations = [30, 45, 60, 90];
 
@@ -65,15 +64,17 @@ export default function Navbar({
 
       {/* Center Display Output Triggers */}
       <div className="flex items-center gap-2">
-        {/* Open Dedicated Pop-out Display Window (For OBS Window/Display Capture) */}
-        <button
-          onClick={openPopoutDisplay}
+        {/* Open Dedicated Display Window via native <a> tag: NEVER blocked by popup blockers! */}
+        <a
+          href="/?view=display"
+          target="_blank"
+          rel="noopener noreferrer"
           className="apple-btn px-3.5 py-1.5 rounded-xl font-tiro text-xs md:text-sm font-bold text-white flex items-center gap-2 shadow-lg"
-          title="OBS-এ ডিসপ্লে ক্যাপচারের জন্য আলাদা উইন্ডো খুলুন"
+          title="নতুন উইন্ডোতে ডিসপ্লে খুলুন (OBS এর জন্য)"
         >
           <ExternalLink className="w-4 h-4 text-white" />
           <span>আলাদা ডিসপ্লে উইন্ডো (OBS)</span>
-        </button>
+        </a>
 
         {/* In-window clean toggle */}
         <button
@@ -99,7 +100,7 @@ export default function Navbar({
           title="OBS Browser Source হিসেবে ব্যবহার করার লিংক কপি করুন"
         >
           <Copy className="w-3.5 h-3.5" />
-          <span>OBS লিংক</span>
+          <span>OBS লিংক কপি</span>
         </button>
 
         {/* Timer Duration Dropdown */}

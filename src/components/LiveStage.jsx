@@ -113,7 +113,7 @@ export default function LiveStage({
             : 'from-transparent via-cyan-400/60 to-transparent'
         }`} />
 
-        {/* Card Header: Colorful Question Counter & Category Badge */}
+        {/* Card Header: Question Counter & Category Badge */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-7">
           <div className="flex items-center gap-3">
             
@@ -134,14 +134,28 @@ export default function LiveStage({
             )}
           </div>
 
-          {/* Time Running Status Pill */}
+          {/* Time Running Status Pill (Clear indicator whether timer is ready, playing, or paused) */}
           <div className="flex items-center gap-2">
-            <span className={`font-tiro text-xs md:text-sm font-semibold flex items-center gap-1.5 ${
-              isRunning ? 'text-zinc-300' : 'text-zinc-500'
-            }`}>
-              <span className={`w-2 h-2 rounded-full ${isRunning ? 'bg-emerald-400 animate-ping' : 'bg-zinc-600'}`} />
-              {isRunning ? 'লাইভ টাইমার চালু' : 'টাইমার স্থগিত'}
-            </span>
+            {isRunning ? (
+              <span className="font-tiro text-xs md:text-sm font-semibold text-emerald-300 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                সময় গণনা চলছে...
+              </span>
+            ) : timeLeft === 0 ? (
+              <span className="font-tiro text-xs md:text-sm font-semibold text-rose-400 flex items-center gap-1.5">
+                সময় সমাপ্ত
+              </span>
+            ) : timeLeft === totalTime ? (
+              <span className="font-tiro text-xs md:text-sm font-semibold text-amber-300 flex items-center gap-1.5">
+                <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                টাইমার প্রস্তুত (ক্লিক করে শুরু করুন)
+              </span>
+            ) : (
+              <span className="font-tiro text-xs md:text-sm font-semibold text-zinc-400 flex items-center gap-1.5">
+                <Pause className="w-3.5 h-3.5 text-zinc-400" />
+                টাইমার বিরতি
+              </span>
+            )}
           </div>
         </div>
 
@@ -259,12 +273,12 @@ export default function LiveStage({
 
       {/* ==========================================================
           PRESENTER CONTROLS & ANTICIPATION BAR 
-          (Moved OUTSIDE the main card as requested!)
+          (Placed below the main card)
          ========================================================== */}
       {!isDisplayOnly && (
         <div className="w-full max-w-3xl mt-5 space-y-3">
           
-          {/* Moved Here: "সময় শেষ হলে উত্তর স্বয়ংক্রিয়ভাবে প্রদর্শিত হবে... এখনই দেখুন" */}
+          {/* Anticipation Bar: "সময় শেষ হলে উত্তর স্বয়ংক্রিয়ভাবে প্রদর্শিত হবে" */}
           <div className="w-full rounded-2xl bg-white/[0.04] border border-white/15 p-3.5 md:p-4 relative overflow-hidden backdrop-blur-xl">
             {/* Linear Countdown Progress Track */}
             <div className="absolute bottom-0 inset-x-0 h-1 bg-white/10">
@@ -285,13 +299,15 @@ export default function LiveStage({
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors duration-500 ${
                   timeLeft <= 15 ? 'bg-rose-500/20 text-rose-400' : 'bg-cyan-500/20 text-cyan-300'
                 }`}>
-                  <Clock className="w-4 h-4 animate-spin" style={{ animationDuration: '8s' }} />
+                  <Clock className={`w-4 h-4 ${isRunning ? 'animate-spin' : ''}`} style={{ animationDuration: '8s' }} />
                 </div>
                 <div>
                   <span className="text-xs md:text-sm font-semibold text-white">
-                    {timeLeft > 0 
-                      ? 'সময় শেষ হলে উত্তর স্বয়ংক্রিয়ভাবে প্রদর্শিত হবে' 
-                      : 'সময় সমাপ্ত! সঠিক উত্তর উন্মোচিত'}
+                    {isRunning 
+                      ? 'টাইমার চলছে • ১ মিনিট শেষ হলে উত্তর স্বয়ংক্রিয়ভাবে দেখাবে' 
+                      : timeLeft === 0 
+                      ? 'সময় সমাপ্ত! সঠিক উত্তর উন্মোচিত' 
+                      : 'টাইমার শুরু করতে প্লে (বা Space) চাপুন'}
                   </span>
                 </div>
               </div>
@@ -318,14 +334,24 @@ export default function LiveStage({
             </button>
 
             <div className="flex items-center gap-2">
+              {/* Play / Pause with glowing invitation if not running */}
               <button
                 onClick={onTogglePlay}
                 title={isRunning ? "টাইমার থামান (Space)" : "টাইমার শুরু করুন (Space)"}
-                className="apple-btn p-3 rounded-xl text-white shadow-xl"
+                className={`p-3 rounded-xl text-white transition-all duration-300 ${
+                  !isRunning && timeLeft > 0
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.5)] scale-105 hover:scale-110'
+                    : 'apple-btn shadow-xl'
+                }`}
               >
-                {isRunning ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 translate-x-0.5" />}
+                {isRunning ? (
+                  <Pause className="w-5 h-5" />
+                ) : (
+                  <Play className="w-5 h-5 translate-x-0.5 fill-white text-white" />
+                )}
               </button>
 
+              {/* Reset Timer */}
               <button
                 onClick={onResetTimer}
                 title="টাইমার পুনরায় শুরু করুন"
@@ -334,6 +360,7 @@ export default function LiveStage({
                 <RotateCcw className="w-5 h-5" />
               </button>
 
+              {/* Reveal / Hide Answer Toggle */}
               <button
                 onClick={onRevealAnswer}
                 className={`px-4 py-2 rounded-xl font-tiro text-sm font-semibold flex items-center gap-1.5 transition-all ${
